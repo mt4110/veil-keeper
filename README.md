@@ -4,6 +4,8 @@
 >
 > 隔離環境での検証と学習を目的とします。本番の防御手段としては使わないでください。ルール適用は隔離 VM 内の明示サブコマンドに限ります。未確認の結果は未確認と表示します。
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/mt4110/veil-keeper/badge)](https://scorecard.dev/viewer/?uri=github.com/mt4110/veil-keeper)
+
 systemd の専用 cgroup と nftables の `socket cgroupv2` による出口制御を、未適用の状態で診断し、隔離 Linux VM で選別・許可・拒否・解除を検証する研究用ハーネスです。Linux の cgroup v2、nftables、systemd の動作を学びたいエンジニアを対象としています。
 
 ## 診断
@@ -48,4 +50,4 @@ Rust 版は NIC のない aarch64 QEMU guest で、B の42フェーズと C の�
 
 OSV-Scanner 2.x を PATH に置き、このリポジトリで `git config --local core.hooksPath .githooks` を実行すると、Git の pre-commit フックが有効になります。`Cargo.toml` または `Cargo.lock` のステージ済み変更があるときに、コミット対象の `Cargo.lock` を OSV に照会し、脆弱性の検出時や検査の失敗時はコミットを止めます。
 
-[経緯](docs/HISTORY.md) · [署名付きリリース](docs/RELEASE.md) · [MIT](LICENSE)
+[経緯](docs/HISTORY.md) · [脆弱性の報告](SECURITY.md) · [署名付きリリース](docs/RELEASE.md) · [MIT](LICENSE)
