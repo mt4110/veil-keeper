@@ -1,0 +1,4 @@
+/target/
+/.local/
+/evidence/
+.DS_Store

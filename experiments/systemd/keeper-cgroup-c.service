@@ -1,0 +1,9 @@
+[Unit]
+Description=veil-keeper fixture c
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/veil-keeper verify c
+TimeoutStartSec=12min
+TimeoutStopSec=20s
+UMask=0077

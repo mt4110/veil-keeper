@@ -1,0 +1,361 @@
+{
+  "provenance": {
+    "nftables": "1.1.7",
+    "capture": "nft -j -n list ruleset",
+    "note": "Synthetic IDs and ports; reproduces the recorded integer protocol format"
+  },
+  "policy": {
+    "schema_version": 1,
+    "parent_id": 4660,
+    "family": 4,
+    "protocol": "tcp",
+    "allow_port": 43101
+  },
+  "parent_id": 4660,
+  "before": {
+    "json": {
+      "nftables": [
+        {
+          "metainfo": {
+            "version": "1.1.7",
+            "release_name": "Commodore Bullmoose #8",
+            "json_schema_version": 1
+          }
+        },
+        {
+          "table": {
+            "family": "inet",
+            "name": "keeper_c",
+            "handle": 1
+          }
+        },
+        {
+          "chain": {
+            "family": "inet",
+            "table": "keeper_c",
+            "name": "output",
+            "handle": 1,
+            "type": "filter",
+            "hook": "output",
+            "prio": 0,
+            "policy": "accept"
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "keeper_c",
+            "chain": "output",
+            "handle": 2,
+            "comment": "keeper-c-allow",
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "ip",
+                      "field": "daddr"
+                    }
+                  },
+                  "right": "127.0.0.1"
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "tcp",
+                      "field": "dport"
+                    }
+                  },
+                  "right": 43101
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "socket": {
+                      "key": "cgroupv2"
+                    }
+                  },
+                  "right": "veilkeeperctrial.slice"
+                }
+              },
+              {
+                "counter": {
+                  "packets": 0,
+                  "bytes": 0
+                }
+              },
+              {
+                "accept": null
+              }
+            ]
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "keeper_c",
+            "chain": "output",
+            "handle": 3,
+            "comment": "keeper-c-deny-tcp",
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "meta": {
+                      "key": "l4proto"
+                    }
+                  },
+                  "right": 6
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "socket": {
+                      "key": "cgroupv2"
+                    }
+                  },
+                  "right": "veilkeeperctrial.slice"
+                }
+              },
+              {
+                "counter": {
+                  "packets": 0,
+                  "bytes": 0
+                }
+              },
+              {
+                "drop": null
+              }
+            ]
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "keeper_c",
+            "chain": "output",
+            "handle": 4,
+            "comment": "keeper-c-deny-udp",
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "meta": {
+                      "key": "l4proto"
+                    }
+                  },
+                  "right": 17
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "socket": {
+                      "key": "cgroupv2"
+                    }
+                  },
+                  "right": "veilkeeperctrial.slice"
+                }
+              },
+              {
+                "counter": {
+                  "packets": 0,
+                  "bytes": 0
+                }
+              },
+              {
+                "drop": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "text": "table inet keeper_c {\n\tchain output {\n\t\ttype filter hook output priority 0; policy accept;\n\t\tip daddr 127.0.0.1 tcp dport 43101 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 accept comment \"keeper-c-allow\"\n\t\tmeta l4proto 6 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-tcp\"\n\t\tmeta l4proto 17 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-udp\"\n\t}\n}\n",
+    "netlink": "inet keeper_c output use 3 type filter hook output prio 0 policy accept packets 0 bytes 0 flags 1\ninet keeper_c output 2\n  [ meta load nfproto => reg 1 ]\n  [ cmp eq reg 1 0x02 ]\n  [ payload load 4b @ network header + 16 => reg 1 ]\n  [ cmp eq reg 1 0x7f000001 ]\n  [ meta load l4proto => reg 1 ]\n  [ cmp eq reg 1 0x06 ]\n  [ payload load 2b @ transport header + 2 => reg 1 ]\n  [ cmp eq reg 1 0xa85d ]\n  [ socket load cgroupv2 => reg 1 ]\n  [ cmp eq reg 1 0x34120000 0x00000000 ]\n  [ counter pkts 0 bytes 0 ]\n  [ immediate reg 0 accept ]\n  userdata len 17 sum 0x567\ninet keeper_c output 3 2\n  [ meta load l4proto => reg 1 ]\n  [ cmp eq reg 1 0x06 ]\n  [ socket load cgroupv2 => reg 1 ]\n  [ cmp eq reg 1 0x34120000 0x00000000 ]\n  [ counter pkts 0 bytes 0 ]\n  [ immediate reg 0 drop ]\n  userdata len 20 sum 0x66f\ninet keeper_c output 4 3\n  [ meta load l4proto => reg 1 ]\n  [ cmp eq reg 1 0x11 ]\n  [ socket load cgroupv2 => reg 1 ]\n  [ cmp eq reg 1 0x34120000 0x00000000 ]\n  [ counter pkts 0 bytes 0 ]\n  [ immediate reg 0 drop ]\n  userdata len 20 sum 0x671\ntable inet keeper_c {\n\tchain output {\n\t\ttype filter hook output priority 0; policy accept;\n\t\tip daddr 127.0.0.1 tcp dport 43101 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 accept comment \"keeper-c-allow\"\n\t\tmeta l4proto 6 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-tcp\"\n\t\tmeta l4proto 17 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-udp\"\n\t}\n}\n"
+  },
+  "after": {
+    "json": {
+      "nftables": [
+        {
+          "metainfo": {
+            "version": "1.1.7",
+            "release_name": "Commodore Bullmoose #8",
+            "json_schema_version": 1
+          }
+        },
+        {
+          "table": {
+            "family": "inet",
+            "name": "keeper_c",
+            "handle": 1
+          }
+        },
+        {
+          "chain": {
+            "family": "inet",
+            "table": "keeper_c",
+            "name": "output",
+            "handle": 1,
+            "type": "filter",
+            "hook": "output",
+            "prio": 0,
+            "policy": "accept"
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "keeper_c",
+            "chain": "output",
+            "handle": 2,
+            "comment": "keeper-c-allow",
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "ip",
+                      "field": "daddr"
+                    }
+                  },
+                  "right": "127.0.0.1"
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "payload": {
+                      "protocol": "tcp",
+                      "field": "dport"
+                    }
+                  },
+                  "right": 43101
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "socket": {
+                      "key": "cgroupv2"
+                    }
+                  },
+                  "right": "veilkeeperctrial.slice"
+                }
+              },
+              {
+                "counter": {
+                  "packets": 5,
+                  "bytes": 286
+                }
+              },
+              {
+                "accept": null
+              }
+            ]
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "keeper_c",
+            "chain": "output",
+            "handle": 3,
+            "comment": "keeper-c-deny-tcp",
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "meta": {
+                      "key": "l4proto"
+                    }
+                  },
+                  "right": 6
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "socket": {
+                      "key": "cgroupv2"
+                    }
+                  },
+                  "right": "veilkeeperctrial.slice"
+                }
+              },
+              {
+                "counter": {
+                  "packets": 0,
+                  "bytes": 0
+                }
+              },
+              {
+                "drop": null
+              }
+            ]
+          }
+        },
+        {
+          "rule": {
+            "family": "inet",
+            "table": "keeper_c",
+            "chain": "output",
+            "handle": 4,
+            "comment": "keeper-c-deny-udp",
+            "expr": [
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "meta": {
+                      "key": "l4proto"
+                    }
+                  },
+                  "right": 17
+                }
+              },
+              {
+                "match": {
+                  "op": "==",
+                  "left": {
+                    "socket": {
+                      "key": "cgroupv2"
+                    }
+                  },
+                  "right": "veilkeeperctrial.slice"
+                }
+              },
+              {
+                "counter": {
+                  "packets": 0,
+                  "bytes": 0
+                }
+              },
+              {
+                "drop": null
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "text": "table inet keeper_c {\n\tchain output {\n\t\ttype filter hook output priority 0; policy accept;\n\t\tip daddr 127.0.0.1 tcp dport 43101 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 5 bytes 286 accept comment \"keeper-c-allow\"\n\t\tmeta l4proto 6 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-tcp\"\n\t\tmeta l4proto 17 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-udp\"\n\t}\n}\n",
+    "netlink": "inet keeper_c output use 3 type filter hook output prio 0 policy accept packets 0 bytes 0 flags 1\ninet keeper_c output 2\n  [ meta load nfproto => reg 1 ]\n  [ cmp eq reg 1 0x02 ]\n  [ payload load 4b @ network header + 16 => reg 1 ]\n  [ cmp eq reg 1 0x7f000001 ]\n  [ meta load l4proto => reg 1 ]\n  [ cmp eq reg 1 0x06 ]\n  [ payload load 2b @ transport header + 2 => reg 1 ]\n  [ cmp eq reg 1 0xa85d ]\n  [ socket load cgroupv2 => reg 1 ]\n  [ cmp eq reg 1 0x34120000 0x00000000 ]\n  [ counter pkts 5 bytes 286 ]\n  [ immediate reg 0 accept ]\n  userdata len 17 sum 0x567\ninet keeper_c output 3 2\n  [ meta load l4proto => reg 1 ]\n  [ cmp eq reg 1 0x06 ]\n  [ socket load cgroupv2 => reg 1 ]\n  [ cmp eq reg 1 0x34120000 0x00000000 ]\n  [ counter pkts 0 bytes 0 ]\n  [ immediate reg 0 drop ]\n  userdata len 20 sum 0x66f\ninet keeper_c output 4 3\n  [ meta load l4proto => reg 1 ]\n  [ cmp eq reg 1 0x11 ]\n  [ socket load cgroupv2 => reg 1 ]\n  [ cmp eq reg 1 0x34120000 0x00000000 ]\n  [ counter pkts 0 bytes 0 ]\n  [ immediate reg 0 drop ]\n  userdata len 20 sum 0x671\ntable inet keeper_c {\n\tchain output {\n\t\ttype filter hook output priority 0; policy accept;\n\t\tip daddr 127.0.0.1 tcp dport 43101 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 5 bytes 286 accept comment \"keeper-c-allow\"\n\t\tmeta l4proto 6 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-tcp\"\n\t\tmeta l4proto 17 socket cgroupv2 level 1 \"veilkeeperctrial.slice\" counter packets 0 bytes 0 drop comment \"keeper-c-deny-udp\"\n\t}\n}\n"
+  }
+}

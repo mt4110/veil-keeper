@@ -1,0 +1,54 @@
+{
+  "schema_version": 2,
+  "scope": "socket_cgroup_v1",
+  "environment": {
+    "system": "Linux",
+    "os_id": "ubuntu",
+    "os_version": "24.04",
+    "machine": "x86_64",
+    "boot_id": "11111111-1111-4111-8111-111111111111",
+    "manager": "system"
+  },
+  "boundary": {
+    "slice": "veilkeepertrial.slice",
+    "path": "/veilkeepertrial.slice",
+    "cgroup_id": 314159,
+    "ancestor_level": 1,
+    "config_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "service": {
+    "canonical_name": "e1-target.service",
+    "parent_slice": "veilkeepertrial.slice",
+    "cgroup_path": "/veilkeepertrial.slice/e1-target.service",
+    "state": "inactive",
+    "launch_mode": "new_systemd",
+    "uid": 1001,
+    "main_pid": 0
+  },
+  "checks": {
+    "capabilities_zero": true,
+    "cgroup_v2_mount": true,
+    "cgroup_write_denied": true,
+    "children_absent": true,
+    "config_stable": true,
+    "container_absent": true,
+    "existing_firewall_clear": true,
+    "host_network": true,
+    "initial_namespaces": true,
+    "ipv4_routes_readable": true,
+    "ipv6_routes_readable": true,
+    "manager_control_denied": true,
+    "namespace_changes_denied": true,
+    "no_new_privileges": true,
+    "parent_exclusive": true,
+    "parent_held_before_start": true,
+    "parent_identity_stable": true,
+    "socket_origin_reviewed": true,
+    "trusted_system_manager": true,
+    "delegated": false,
+    "external_inet_fds": false,
+    "external_socket_helpers": false,
+    "fd_store": false,
+    "socket_activation": false
+  }
+}

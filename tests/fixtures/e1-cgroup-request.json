@@ -1,0 +1,38 @@
+{
+  "schema_version": 2,
+  "scope": "socket_cgroup_v1",
+  "target": {
+    "service": "e1-target.service",
+    "parent_slice": "veilkeepertrial.slice",
+    "parent_path": "/veilkeepertrial.slice",
+    "ancestor_level": 1,
+    "boot_id": "11111111-1111-4111-8111-111111111111",
+    "cgroup_id": 314159,
+    "config_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  },
+  "allow": [
+    {
+      "address": "192.0.2.10",
+      "protocol": "tcp",
+      "port": 5432
+    },
+    {
+      "address": "192.0.2.53",
+      "protocol": "udp",
+      "port": 53
+    },
+    {
+      "address": "2001:db8::10",
+      "protocol": "tcp",
+      "port": 443
+    }
+  ],
+  "owner_review": {
+    "boundary_lifetime": true,
+    "controlled_start": true,
+    "inbound_replies": true,
+    "local_proxy_and_dns_paths": true,
+    "management_outside_scope": true,
+    "required_traffic": true
+  }
+}
